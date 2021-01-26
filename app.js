@@ -54,7 +54,7 @@ const APIController = (function() {
             headers: { 'Authorization' : 'Bearer ' + token}
         });
 
-        const resultAnalysis = await fetch('https://api.spotify.com/v1/audio-analysis/' + id, {
+        const resultAnalysis = await fetch('https://api.spotify.com/v1/audio-features/' + id, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         });
@@ -64,13 +64,58 @@ const APIController = (function() {
         console.log(dataSong);
         console.log(dataAnalysis);
 
+        const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
+        const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
+
         $(".songDetails").append("<div class='songInfo'><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
-        	"<h3>" + dataSong.name + "</h3><table>"
+        	"<h3>" + dataSong.name + "</h3><br><table><tr><td>Track length <b>" + duration + "</b></td><td>Key <b>" + keys[0] + "</b></td></tr><tr><td>Camelot <b>" + keys[1] + "</b></td></tr></table>"
         	);
 
         return dataSong;
 
     }
+
+    const millisToMinutesAndSecond = async (millis) => {
+
+	  const minutes = Math.floor(millis / 60000);
+	  const seconds = ((millis % 60000) / 1000).toFixed(0);
+
+	  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+	}
+
+	const getMusicKey = async (key, mode) => {
+
+	  	const keys = ["C", "C♯", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+	  	var camelot = [
+		    ["5A","8B"],
+		    ["12A","3B"],
+		    ["7A","10B"],
+		    ["2A","5B"],
+		    ["9A","12B"],
+		    ["4A","7B"],
+		    ["11A","2B"],
+		    ["6A","9B"],
+		    ["1A","4B"],
+		    ["8A","11B"],
+		    ["3A","6B"],
+		    ["10A","1B"],
+		];	
+
+
+		var musicMode = ["Minor", "Major"];
+
+		var musicKey = keys[key] + " " + musicMode[mode];
+
+		var camelot = camelot[key][mode];
+
+		console.log(camelot);
+
+		var keyVars = [musicKey, camelot]
+
+		return keyVars;
+
+	}
 
 	return {
 		getToken() {
