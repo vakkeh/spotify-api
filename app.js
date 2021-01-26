@@ -35,12 +35,41 @@ const APIController = (function() {
         $(".selector").empty();
 
         for (i = 0; i < 10; i++) {
-			$(".selector").append("<div class='card item'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
+			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<p class='artist'>" + data.tracks.items[i].artists[0].name + 
-				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div><br>");
+				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p><i class='fas fa-arrow-right arrow-continue'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
 		}
 
         return data.tracks.items;
+    }
+
+    const _getSongById = async(token, id) => {
+
+    	$(".songDetails").empty();
+
+    	//https://api.spotify.com/v1/tracks/7mazffu6nlIv0rtRyPDMTD
+
+    	const resultSong = await fetch('https://api.spotify.com/v1/tracks/' + id, {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer ' + token}
+        });
+
+        const resultAnalysis = await fetch('https://api.spotify.com/v1/audio-analysis/' + id, {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer ' + token}
+        });
+
+        const dataSong = await resultSong.json();
+        const dataAnalysis = await resultAnalysis.json();
+        console.log(dataSong);
+        console.log(dataAnalysis);
+
+        $(".songDetails").append("<div class='songInfo'><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
+        	"<h3>" + dataSong.name + "</h3><table>"
+        	);
+
+        return dataSong;
+
     }
 
 	return {
@@ -50,6 +79,9 @@ const APIController = (function() {
         getSongs(token, song) {
             return _getSongs(token, song);
         },
+        getSongById(token, id) {
+            return _getSongById(token, id);
+        }
 	}
 })();
 
@@ -58,17 +90,26 @@ const APPController = (function(APICtrl) {
 	const loadSongs = async () => {
 
 		var song = $( "input#song" ).val();
-        //get the token
         const token = await APICtrl.getToken();           
-        //get the genres
-        const songs = await APICtrl.getSongs(token, song);
+        await APICtrl.getSongs(token, song);
 
+    }
+
+    const loadSongById = async (id) => {
+
+        const token = await APICtrl.getToken();           
+        await APICtrl.getSongById(token, id);
     }
 
 	return {
         init() {
-            loadSongs(song);
+            loadSongs();
+        },
+
+        loadSong(id) {
+        	loadSongById(id);
         }
+
     }
 
 })(APIController);

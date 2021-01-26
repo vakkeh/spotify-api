@@ -4,6 +4,26 @@
 	font-family: 'Montserrat', sans-serif;
 }
 
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  height: 0.5em;
+  width: 0.5em;
+  border-radius: 50em;
+  background: url(https://pro.fontawesome.com/releases/v5.10.0/svgs/solid/times-circle.svg) no-repeat 50% 50%;
+  background-size: contain;
+  opacity: 0;
+  pointer-events: none;
+}
+
+input[type="search"]:focus::-webkit-search-cancel-button {
+  opacity: .3;
+  pointer-events: all;
+}
+
+input[type="search"].dark::-webkit-search-cancel-button {
+  filter: invert(1);
+}
+
 .container {
 	padding: 5vh;
 }
@@ -25,11 +45,13 @@
 	outline: none;
 }
 
+
 .item {
 	position: relative;
 	display: inline-block;
 	width: 100%;
 	margin: 1vh 0 1vh;
+	cursor: pointer;
 }
 
 .item img {
@@ -54,4 +76,85 @@
 
 .card:hover {
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
+.arrow-continue {
+	position: relative;
+	font-size: 1vw;
+	margin-right: 2%;
+	float: right;
+}
+
+.hidden {
+	display: none;
+}
+
+.songDetails {
+	margin-top: 3vh;
+}
+
+.albumArtDetail {
+	width: 20%;
+	height: auto;
+	float: left;
+	display: inline-block;
+}
+
+.songInfo {
+	display: block;
+	overflow: auto;
+}
+
+.songInfo h2 {
+	display: inline-block;
+	font-weight: 400;
+	margin-left: 3vw;
+	font-size: 1vw;
+}
+
+.songInfo h3 {
+	display: inline-block;
+	font-weight: 700;
+	margin-left: 3vw;
+	font-size: 2vw;
+}
+
+.songInfo p {
+	display: inline-block;
+	font-weight: 400;
+	margin-left: 3vw;
+	font-size: 1vw;
+}
+
+.songInfo table {
+	display: inline-block;
+	margin: 5vh 0 0 3vw;
+}
+
+.songInfo table tr {
+	margin-right: 10vw;
+}
+
+.songInfo table td {
+	margin-top: 1vh;
+	padding-right: 3vw;
+	font-weight: 400;
+	font-size: 1vw;
+}
+
+.songAnalysis {
+	margin-top: 3vh;
+}
+
+.songAnalysis h4 {
+	margin-bottom: 1.5vh;
+	font-size: 1vw;
+	text-decoration: underline;
+}
+
+.songAnalysis table td {
+	margin-top: 1vh;
+	padding-right: 3vw;
+	font-weight: 400;
+	font-size: 0.8vw;
 }
