@@ -49,6 +49,7 @@ const APIController = (function() {
 
     	console.log(id);
 
+		$(".selector").empty();
     	$(".songDetails").empty();
     	$(".recommended").empty();
 
@@ -66,12 +67,13 @@ const APIController = (function() {
 
         const dataSong = await resultSong.json();
         const dataAnalysis = await resultAnalysis.json();
-        //console.log(dataSong);
+        console.log(dataSong);
         //console.log(dataAnalysis);
 
         const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
 		const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
 		const date = await formatDate(new Date(dataSong.album.release_date));
+		const preview = dataSong.preview_url;
 		var tempo = dataAnalysis.tempo + '';
 
         $(".songDetails").append("<div class='songInfo'><i onClick='like(this)' class='far fa-heart heart'></i><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
@@ -79,6 +81,7 @@ const APIController = (function() {
 			+"<td>Release Date <b>" + date + "</b></td></tr>"
 			+ "<tr><td>Tempo <b>" + tempo.split('.')[0] + " BPM</b></td>"
 			+ "<td>Album <b>" + dataSong.album.name + "</b></td></tr></table></div>"
+			+ "<audio controls class='previewPlayer'><source src='" + preview +"' type ='audio/mpeg'>Preview not available</audio>"
 			);
 
 		var acousticness = (Math.ceil(dataAnalysis.acousticness * 100) + '').split('.')[0];
@@ -121,6 +124,7 @@ const APIController = (function() {
         $(".recommended").empty();
 
 		loadItems();
+		var favorites = items;
 
 		if (items !== undefined || items.length != 0) {
 			$(".selector").append("<h2>My Favorites</h2>");
@@ -139,7 +143,14 @@ const APIController = (function() {
 	        }
 		}
 
-		var loadSimilar = await _getSimilar(await _getToken(), items);
+		var countFavorites = favorites.length;
+        if(countFavorites > 5) {
+        	favorites = await getRandom(favorites, 5);
+        }
+
+        console.log(favorites);
+
+		var loadSimilar = await _getSimilar(await _getToken(), favorites);
     }
 
     _getSimilar = async (token, seed) => {
@@ -154,7 +165,7 @@ const APIController = (function() {
 
         const dataRecommended = await resultRecommended.json();
 
-        var countFavorites = items.length;
+        var countFavorites = favorites.length;
 
         $(".recommended").append("<hr><h5>Songs you might like</h5>");
 
@@ -165,6 +176,20 @@ const APIController = (function() {
 				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
 		}
     }
+
+    const getRandom = async(arr, n) => {
+	    var result = new Array(n),
+	        len = arr.length,
+	        taken = new Array(len);
+	    if (n > len)
+	        throw new RangeError("getRandom: more elements taken than available");
+	    while (n--) {
+	        var x = Math.floor(Math.random() * len);
+	        result[n] = arr[x in taken ? taken[x] : x];
+	        taken[x] = --len in taken ? taken[len] : len;
+	    }
+	    return result;
+	}
 	
 	const formatDate = async (date) => {
 

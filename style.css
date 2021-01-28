@@ -218,6 +218,15 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	font-size: 1vw;
 }
 
+.previewPlayer {
+	margin-top: 3vh;
+	width: 100%;
+}
+
+.previewPlayer:focus {
+	outline: none;
+}
+
 .songAnalysis {
 	margin-top: 3vh;
 }
