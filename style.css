@@ -218,12 +218,23 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	font-size: 1vw;
 }
 
+.previewPlayer_selector {
+	position: absolute;
+	right: 0;
+	margin-right: 5%;
+	width: 30%;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+	font-size: 1vw;
+}
+
 .previewPlayer {
 	margin-top: 3vh;
 	width: 100%;
 }
 
-.previewPlayer:focus {
+.previewPlayer, .previewPlayer_selector:focus {
 	outline: none;
 }
 

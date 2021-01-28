@@ -37,10 +37,19 @@
 				$(".selector").empty();
 
 				APPController.loadSong(id);
+
+				addEventListeners();
 			}
 
 			function showFavorites() {
 				APPController.showFavorites();
+
+				var player = document.getElementById("previewPlayer_selector");
+
+				player.addEventListener("play", function () {
+					var allAudios = document.querySelectorAll('audio');
+					stopAudio(allAudios);
+				});
 			}
 
 			function like(element) {

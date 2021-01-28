@@ -37,9 +37,16 @@ const APIController = (function() {
         $(".recommended").empty();
 
         for (var i = 0; i < 10; i++) {
+        	var preview = '';
+	        if(data.tracks.items[i].preview_url != null) {
+	        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.tracks.items[i].preview_url +"' type ='audio/mpeg'></audio>"
+	        } else {
+	        	preview = '';
+	        }
+
 			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name + 
-				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
 		}
 
         return data.tracks.items;
@@ -73,7 +80,12 @@ const APIController = (function() {
         const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
 		const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
 		const date = await formatDate(new Date(dataSong.album.release_date));
-		const preview = dataSong.preview_url;
+		var preview = '';
+        if(dataSong.preview_url != null) {
+        	preview = "<audio controls class='previewPlayer' controlsList='nodownload'><source src='" + dataSong.preview_url +"' type ='audio/mpeg'></audio>"
+        } else {
+        	preview = '';
+        }
 		var tempo = dataAnalysis.tempo + '';
 
         $(".songDetails").append("<div class='songInfo'><i onClick='like(this)' class='far fa-heart heart'></i><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
@@ -81,7 +93,7 @@ const APIController = (function() {
 			+"<td>Release Date <b>" + date + "</b></td></tr>"
 			+ "<tr><td>Tempo <b>" + tempo.split('.')[0] + " BPM</b></td>"
 			+ "<td>Album <b>" + dataSong.album.name + "</b></td></tr></table></div>"
-			+ "<audio controls class='previewPlayer'><source src='" + preview +"' type ='audio/mpeg'>Preview not available</audio>"
+			+ preview
 			);
 
 		var acousticness = (Math.ceil(dataAnalysis.acousticness * 100) + '').split('.')[0];
@@ -138,10 +150,16 @@ const APIController = (function() {
 		        const data = await result.json();
 
 		        var index = i + countFavorites;
+		        var preview = '';
+		        if(data.preview_url != null) {
+		        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.preview_url +"' type ='audio/mpeg'></audio>"
+		        } else {
+		        	preview = '';
+		        }
 
 		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
-				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
+				                  "</p><p class='song'>" + data.name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
 	        }
 		}
 
@@ -172,9 +190,16 @@ const APIController = (function() {
 
         for (var i = 0; i < 10; i++) {
         	var index = i + countFavorites;
+        	var preview = '';
+	        if(dataRecommended.preview_url != null) {
+	        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + dataRecommended.tracks[i].preview_url +"' type ='audio/mpeg'></audio>"
+	        } else {
+	        	preview = '';
+	        }
+
 			$(".recommended").append("<div onClick='clearResults(this)' class='card item item-" + index + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
-				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
 		}
     }
 
