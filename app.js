@@ -125,6 +125,7 @@ const APIController = (function() {
 
 		loadItems();
 		var favorites = items;
+		var countFavorites = favorites.length;
 
 		if (items !== undefined || items.length != 0) {
 			$(".selector").append("<h2>My Favorites</h2>");
@@ -135,15 +136,15 @@ const APIController = (function() {
 		        });
 
 		        const data = await result.json();
-		        //console.log(data);
 
-		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
+		        var index = i + countFavorites;
+
+		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + index + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
-				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
+				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + data.id + "</p></div><br>");
 	        }
 		}
 
-		var countFavorites = favorites.length;
         if(countFavorites > 5) {
         	favorites = await getRandom(favorites, 5);
         }
