@@ -32,6 +32,8 @@
 				var myClasses = element.classList;
    				var itemNum = myClasses[2].split('-')[1];
    				var id = $(".hidden-" + itemNum).text();
+   				console.log(itemNum);
+   				console.log("div " + id);
 				$(".selector").empty();
 
 				APPController.loadSong(id);
@@ -77,7 +79,6 @@
 				var check = false;
 
 				for (let entry of items) {
-					console.log(id, entry, id == entry);
 				    if(id == entry) {
 				    	check = true;
 				    	break;

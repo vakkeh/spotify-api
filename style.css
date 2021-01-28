@@ -61,6 +61,11 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	color: #ff8282;
 }
 
+.selector h2 {
+	font-size: 1.2vw;
+	margin: 3vh 0 3vh 0;
+}
+
 .item {
 	position: relative;
 	display: flex;
@@ -220,7 +225,6 @@ input[type="search"].dark::-webkit-search-cancel-button {
 .songAnalysis h4 {
 	margin-bottom: 1.5vh;
 	font-size: 1.2vw;
-	text-decoration: underline;
 }
 
 .songAnalysis table td {
@@ -236,6 +240,5 @@ input[type="search"].dark::-webkit-search-cancel-button {
 
 .recommended h5 {
 	font-size: 1.2vw;
-	text-decoration: underline;
 	margin: 3vh 0 3vh 0;
 }

@@ -30,10 +30,11 @@ const APIController = (function() {
         });
 
         const data = await result.json();
-        console.log(data);
+        //console.log(data);
 		
 		$(".songDetails").empty();
         $(".selector").empty();
+        $(".recommended").empty();
 
         for (var i = 0; i < 10; i++) {
 			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
@@ -45,6 +46,8 @@ const APIController = (function() {
     }
 
     const _getSongById = async(token, id) => {
+
+    	console.log(id);
 
     	$(".songDetails").empty();
     	$(".recommended").empty();
@@ -65,8 +68,6 @@ const APIController = (function() {
         const dataAnalysis = await resultAnalysis.json();
         //console.log(dataSong);
         //console.log(dataAnalysis);
-
-        const artist_id = dataSong.album.artists[0].id;
 
         const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
 		const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
@@ -97,22 +98,8 @@ const APIController = (function() {
 		+ "<p class='hidden songId'>" + id + "</p>"
 		);
 
-		const resultRecommended = await fetch('https://api.spotify.com/v1/recommendations?limit=10&seed_tracks=' + id, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
+		var loadSimilar = await _getSimilar(await _getToken(), id);
 
-        const dataRecommended = await resultRecommended.json();
-
-        console.log(dataRecommended);
-
-        $(".recommended").append("<hr><h5>Similar songs</h5>");
-
-        for (var i = 0; i < 10; i++) {
-			$(".recommended").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
-				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
-				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
-		}
 
 		loadItems();
 
@@ -131,10 +118,12 @@ const APIController = (function() {
 
 		$(".songDetails").empty();
         $(".selector").empty();
+        $(".recommended").empty();
 
 		loadItems();
 
 		if (items !== undefined || items.length != 0) {
+			$(".selector").append("<h2>My Favorites</h2>");
 			for(var i = 0; i < items.length; i++) {
 	    		const result = await fetch('https://api.spotify.com/v1/tracks/' + items[i], {
 		            method: 'GET',
@@ -142,11 +131,38 @@ const APIController = (function() {
 		        });
 
 		        const data = await result.json();
-		        console.log(data);
+		        //console.log(data);
+
 		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
 				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
 	        }
+		}
+
+		var loadSimilar = await _getSimilar(await _getToken(), items);
+    }
+
+    _getSimilar = async (token, seed) => {
+
+    	//console.log(token);
+    	//console.log(seed);
+
+    	const resultRecommended = await fetch('https://api.spotify.com/v1/recommendations?limit=10&seed_tracks=' + seed, {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer ' + token}
+        });
+
+        const dataRecommended = await resultRecommended.json();
+
+        var countFavorites = items.length;
+
+        $(".recommended").append("<hr><h5>Songs you might like</h5>");
+
+        for (var i = 0; i < 10; i++) {
+        	var index = i + countFavorites;
+			$(".recommended").append("<div onClick='clearResults(this)' class='card item item-" + index + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
+				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
+				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
 		}
     }
 	
@@ -227,6 +243,9 @@ const APIController = (function() {
         },
         getFavorites(token) {
         	return _getFavorites(token);
+        },
+        getSimilar(token, seed) {
+        	return _getSimilar(token, seed);
         }
 	}
 })();
@@ -252,6 +271,11 @@ const APPController = (function(APICtrl) {
         await APICtrl.getFavorites(token);
     }
 
+    const loadSimilar = async (seed) => {
+        const token = await APICtrl.getToken();           
+        await APICtrl.getSimilar(token, seed);
+    }
+
 	return {
         init() {
             loadSongs();
@@ -264,8 +288,8 @@ const APPController = (function(APICtrl) {
         showFavorites() {
         	loadFavorites();
         },
-        loadSimilar() {
-
+        showSimilar() {
+        	loadSimilar(seed);
         }
 
     }
