@@ -25,10 +25,11 @@ input[type="search"].dark::-webkit-search-cancel-button {
 }
 
 .container {
-	padding: 5vh;
+	padding: 5vh 5vh 0 5vh;
 }
 
 .topBar a {
+	display: inline-block;
 	font-size: 1.5vw;
 	color: black;
 	text-decoration: none;
@@ -47,10 +48,21 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	outline: none;
 }
 
+.navItem {
+	font-size: 1vw;
+	margin: 2vw 0 0 2vw;
+	float: right;
+	transition: 0.1s all ease-in-out;
+}
+
+.navItem:hover {
+	cursor: pointer;
+	color: #ff8282;
+}
 
 .item {
 	position: relative;
-	display: inline-block;
+	display: flex;
 	width: 100%;
 	margin: 1vh 0 1vh;
 	cursor: pointer;
@@ -58,23 +70,33 @@ input[type="search"].dark::-webkit-search-cancel-button {
 
 .item img {
 	float: left;
-	width: 100px;
-	height: 100px;
-}
-
-.nameInfo {
-	display: grid;
+	width: 4vw;
+	height: auto;
 }
 
 .item p {
+	margin-left: 1vw;
+	align-items: center;
+	text-align: left; 
+}
+
+.artist {
 	position: relative;
-	display: block;
-	top: 20%;
-	transform: translateY(160%);
-	margin-left: 1%;
+	top: 50%;
+	transform: translateY(-130%);
+	font-size: 0.7vw;
+}
+
+.song {
+	position: relative;
+	top: 50%;
+	transform: translateY(-70%);
+	font-size: 1.3vw;
+	font-weight: 700;
 }
 
 .card {
+	height: 30%;
 	background: #fff;
 	border-radius: 2px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -85,12 +107,52 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 
-.arrow-continue {
-	position: relative;
+.icon {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
 	font-size: 1vw;
-	margin-top: 1vh;
 	margin-right: 2%;
 	float: right;
+}
+
+.heart {
+	float: right;
+	font-size: 2vw;
+}
+
+.heart:hover {
+	color: #ff8282;
+	cursor: pointer;
+}
+
+.heart.animate {
+	transition: all ease-in-out;
+	animation: like 0.15s;
+}
+
+.liked {
+	color: #ff8282;
+}
+
+@keyframes like {
+	0% {
+		-webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+	}
+	50% {
+		-webkit-transform: scale(0.5);
+        -ms-transform: scale(0.5);
+        transform: scale(0.5);
+	}
+	100% {
+		-webkit-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+	}
 }
 
 .hidden {
@@ -99,6 +161,7 @@ input[type="search"].dark::-webkit-search-cancel-button {
 
 .songDetails {
 	margin-top: 3vh;
+	overflow: visible;
 }
 
 .albumArtDetail {

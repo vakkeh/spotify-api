@@ -13,7 +13,13 @@
 		<!--<script type="text/javascript" src="spotify-web-api.js"></script>-->
 		<script type="text/javascript" src="app.js"></script>
 		<script>
+
+			var items = [];
+
 			$( document ).ready(function() {
+
+				favorites = window.localStorage;
+
 	    		var input = document.getElementById("song");
 				input.addEventListener("keyup", function(event) {
 					event.preventDefault();
@@ -27,14 +33,67 @@
    				var itemNum = myClasses[2].split('-')[1];
    				var id = $(".hidden-" + itemNum).text();
 				$(".selector").empty();
+
 				APPController.loadSong(id);
 			}
+
+			function showFavorites() {
+				APPController.showFavorites();
+			}
+
+			function like(element) {
+				$(element).toggleClass('animate');
+				$(element).toggleClass('liked');
+				$(element).toggleClass("far fas");
+				var id =  $("p.hidden").text();
+
+				loadItems();
+
+				if (items === undefined || items.length == 0) {
+				    items.push(id);
+			    	localStorage.setItem('id', JSON.stringify(items));
+				} else {
+			    	if(!idExist(id)) {
+			    		items.push(id);
+				    	localStorage.setItem('id', JSON.stringify(items));
+			    	} else {
+			    		const index = items.indexOf(id);
+			    		if (index > -1) {
+						  items.splice(index , 1);
+						}
+						localStorage.setItem('id', JSON.stringify(items));
+			    	}
+				}
+			}
+
+			function loadItems() {
+				if(localStorage.getItem('id') !== null) {
+					items = JSON.parse(localStorage.getItem('id'));
+				}
+			}
+
+			function idExist(id) {
+
+				var check = false;
+
+				for (let entry of items) {
+					console.log(id, entry, id == entry);
+				    if(id == entry) {
+				    	check = true;
+				    	break;
+				    }
+				}
+
+				return check;
+			}
+
 		</script>
 	</head>
 	<body>
 		<div class="container">
 			<div class="topBar">
 				<a href="./index.html"><h1>MusicSeek</h1></a>
+				<p class="navItem" onClick="showFavorites()">My Favorites</p>
 				<input placeholder="Search..." type="search" autocomplete="off" name="song" id="song"><br><br>
 				<!--<button id="submit" onClick="APPController.init();">Submit</button>-->
 			</div>

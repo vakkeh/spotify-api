@@ -38,7 +38,7 @@ const APIController = (function() {
         for (i = 0; i < 10; i++) {
 			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name + 
-				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
 		}
 
         return data.tracks.items;
@@ -70,12 +70,11 @@ const APIController = (function() {
 		const date = await formatDate(new Date(dataSong.album.release_date));
 		var tempo = dataAnalysis.tempo + '';
 
-        $(".songDetails").append("<div class='songInfo'><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
+        $(".songDetails").append("<div class='songInfo'><i onClick='like(this)' class='far fa-heart heart'></i><img class='albumArtDetail' src='" + dataSong.album.images[0].url + "'><h2>" + dataSong.album.artists[0].name + "</h2><br>" +
 			"<h3>" + dataSong.name + "</h3><br><table><tr><td>Track length <b>" + duration + "</b></td><td>Key <b>" + keys[0] + "</b></td></tr><tr><td>Camelot <b>" + keys[1] + "</b></td>"
 			+"<td>Release Date <b>" + date + "</b></td></tr>"
 			+ "<tr><td>Tempo <b>" + tempo.split('.')[0] + " BPM</b></td>"
-			+ "<td>Album <b>" + dataSong.album.name + "</b></td></tr>"
-			+ "</table>"
+			+ "<td>Album <b>" + dataSong.album.name + "</b></td></tr></table></div>"
 			);
 
 		var acousticness = (Math.ceil(dataAnalysis.acousticness * 100) + '').split('.')[0];
@@ -92,11 +91,44 @@ const APIController = (function() {
 		+ "<tr><td>Energy <b>" + energy + "%</b></td><td>Instrumentalness <b>" + instrumentalness + "%</b></td></tr>"
 		+ "<tr><td>Liveness <b>" + liveness + "%</b></td><td>Loudness <b>" + loudness + " dB</b></td></tr>"
 		+ "<tr><td>Speechiness <b>" + speechiness + "%</b></td><td>Valence <b>" + valence + "%</b></td></tr></table></div>"
+		+ "<p class='hidden'>" + id + "</p>"
 		);
+
+		loadItems();
+
+		if (items !== undefined || items.length != 0) {
+	    	if(idExist(id)) {
+	    		$(".heart").toggleClass('liked');
+				$(".heart").toggleClass("far fas");
+	    	}
+		}
 
         return dataSong;
 
 	}
+
+	const _getFavorites = async (token) => {
+
+		$(".songDetails").empty();
+        $(".selector").empty();
+
+		loadItems();
+
+		if (items !== undefined || items.length != 0) {
+			for(var i = 0; i < items.length; i++) {
+	    		const result = await fetch('https://api.spotify.com/v1/tracks/' + items[i], {
+		            method: 'GET',
+		            headers: { 'Authorization' : 'Bearer ' + token}
+		        });
+
+		        const data = await result.json();
+		        console.log(data);
+		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
+				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
+				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
+	        }
+		}
+    }
 	
 	const formatDate = async (date) => {
 
@@ -157,9 +189,7 @@ const APIController = (function() {
 
 		var camelot = camelot[key][mode];
 
-		console.log(camelot);
-
-		var keyVars = [musicKey, camelot]
+		var keyVars = [musicKey, camelot];
 
 		return keyVars;
 
@@ -174,6 +204,9 @@ const APIController = (function() {
         },
         getSongById(token, id) {
             return _getSongById(token, id);
+        },
+        getFavorites(token) {
+        	return _getFavorites(token);
         }
 	}
 })();
@@ -194,6 +227,11 @@ const APPController = (function(APICtrl) {
         await APICtrl.getSongById(token, id);
     }
 
+    const loadFavorites = async () => {
+        const token = await APICtrl.getToken();           
+        await APICtrl.getFavorites(token);
+    }
+
 	return {
         init() {
             loadSongs();
@@ -201,6 +239,10 @@ const APPController = (function(APICtrl) {
 
         loadSong(id) {
         	loadSongById(id);
+        },
+
+        showFavorites() {
+        	loadFavorites();
         }
 
     }
