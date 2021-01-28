@@ -35,7 +35,7 @@ const APIController = (function() {
 		$(".songDetails").empty();
         $(".selector").empty();
 
-        for (i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
 			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name + 
 				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
@@ -47,6 +47,7 @@ const APIController = (function() {
     const _getSongById = async(token, id) => {
 
     	$(".songDetails").empty();
+    	$(".recommended").empty();
 
     	//https://api.spotify.com/v1/tracks/7mazffu6nlIv0rtRyPDMTD
 
@@ -62,8 +63,10 @@ const APIController = (function() {
 
         const dataSong = await resultSong.json();
         const dataAnalysis = await resultAnalysis.json();
-        console.log(dataSong);
-        console.log(dataAnalysis);
+        //console.log(dataSong);
+        //console.log(dataAnalysis);
+
+        const artist_id = dataSong.album.artists[0].id;
 
         const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
 		const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
@@ -91,8 +94,25 @@ const APIController = (function() {
 		+ "<tr><td>Energy <b>" + energy + "%</b></td><td>Instrumentalness <b>" + instrumentalness + "%</b></td></tr>"
 		+ "<tr><td>Liveness <b>" + liveness + "%</b></td><td>Loudness <b>" + loudness + " dB</b></td></tr>"
 		+ "<tr><td>Speechiness <b>" + speechiness + "%</b></td><td>Valence <b>" + valence + "%</b></td></tr></table></div>"
-		+ "<p class='hidden'>" + id + "</p>"
+		+ "<p class='hidden songId'>" + id + "</p>"
 		);
+
+		const resultRecommended = await fetch('https://api.spotify.com/v1/recommendations?limit=10&seed_tracks=' + id, {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer ' + token}
+        });
+
+        const dataRecommended = await resultRecommended.json();
+
+        console.log(dataRecommended);
+
+        $(".recommended").append("<hr><h5>Similar songs</h5>");
+
+        for (var i = 0; i < 10; i++) {
+			$(".recommended").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
+				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
+				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
+		}
 
 		loadItems();
 
@@ -243,6 +263,9 @@ const APPController = (function(APICtrl) {
 
         showFavorites() {
         	loadFavorites();
+        },
+        loadSimilar() {
+
         }
 
     }

@@ -229,3 +229,13 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	font-weight: 400;
 	font-size: 1vw;
 }
+
+.recommended {
+	margin-top: 3vh;
+}
+
+.recommended h5 {
+	font-size: 1.2vw;
+	text-decoration: underline;
+	margin: 1.5vh 0 1.5vh 0;
+}
