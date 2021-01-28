@@ -72,7 +72,7 @@ input[type="search"].dark::-webkit-search-cancel-button {
 .item img {
 	float: left;
 	width: 4vw;
-	height: auto;
+	height: 30%;
 }
 
 .item p {
