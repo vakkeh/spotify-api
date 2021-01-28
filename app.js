@@ -139,9 +139,9 @@ const APIController = (function() {
 
 		        var index = i + countFavorites;
 
-		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + index + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
+		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
-				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + data.id + "</p></div><br>");
+				                  "</p><p class='song'>" + data.name + "</p></div><i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
 	        }
 		}
 
@@ -166,7 +166,7 @@ const APIController = (function() {
 
         const dataRecommended = await resultRecommended.json();
 
-        var countFavorites = favorites.length;
+        var countFavorites = items.length;
 
         $(".recommended").append("<hr><h5>Songs you might like</h5>");
 
