@@ -28,7 +28,7 @@
 				});
 			});
 
-			function clearResults(element) {
+			function clearResults(event, element) {
 				var myClasses = element.classList;
    				var itemNum = myClasses[2].split('-')[1];
    				var id = $(".hidden-" + itemNum).text();
@@ -37,19 +37,10 @@
 				$(".selector").empty();
 
 				APPController.loadSong(id);
-
-				addEventListeners();
 			}
 
 			function showFavorites() {
 				APPController.showFavorites();
-
-				var player = document.getElementById("previewPlayer_selector");
-
-				player.addEventListener("play", function () {
-					var allAudios = document.querySelectorAll('audio');
-					stopAudio(allAudios);
-				});
 			}
 
 			function like(element) {

@@ -42,11 +42,16 @@ const APIController = (function() {
 	        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.tracks.items[i].preview_url +"' type ='audio/mpeg'></audio>"
 	        } else {
 	        	preview = '';
-	        }
+			}
+			
+			var trackName = data.tracks.items[i].name;
+			if(trackName.length > 70) {
+				trackName = trackName.substr(0,70) + "...";
+			} 
 
-			$(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
+			$(".selector").append("<div onClick='clearResults(event, this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name + 
-				                  "</p><p class='song'>" + data.tracks.items[i].name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
 		}
 
         return data.tracks.items;
@@ -155,11 +160,16 @@ const APIController = (function() {
 		        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.preview_url +"' type ='audio/mpeg'></audio>"
 		        } else {
 		        	preview = '';
-		        }
+				}
+				
+				var trackName = data.name;
+				if(trackName.length > 70) {
+					trackName = trackName.substr(0,70) + "...";
+				} 
 
-		        $(".selector").append("<div onClick='clearResults(this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
+		        $(".selector").append("<div onClick='clearResults(event, this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
-				                  "</p><p class='song'>" + data.name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
 	        }
 		}
 
@@ -184,22 +194,29 @@ const APIController = (function() {
 
         const dataRecommended = await resultRecommended.json();
 
-        var countFavorites = items.length;
+		var countFavorites = items.length;
+		
+		console.log(dataRecommended);
 
         $(".recommended").append("<hr><h5>Songs you might like</h5>");
 
         for (var i = 0; i < 10; i++) {
         	var index = i + countFavorites;
-        	var preview = '';
-	        if(dataRecommended.preview_url != null) {
+			var preview = '';
+	        if(dataRecommended.tracks[i].preview_url != null) {
 	        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + dataRecommended.tracks[i].preview_url +"' type ='audio/mpeg'></audio>"
 	        } else {
 	        	preview = '';
-	        }
+			}
+			
+			var trackName = dataRecommended.tracks[i].name
+			if(trackName.length > 70) {
+				trackName = trackName.substr(0,70) + "...";
+			} 
 
-			$(".recommended").append("<div onClick='clearResults(this)' class='card item item-" + index + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
+			$(".recommended").append("<div onClick='clearResults(event, this)' class='card item item-" + index + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
-				                  "</p><p class='song'>" + dataRecommended.tracks[i].name + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
 		}
     }
 
@@ -304,15 +321,12 @@ const APIController = (function() {
 const APPController = (function(APICtrl) {
 
 	const loadSongs = async () => {
-
 		var song = $( "input#song" ).val();
         const token = await APICtrl.getToken();           
         await APICtrl.getSongs(token, song);
-
     }
 
     const loadSongById = async (id) => {
-
         const token = await APICtrl.getToken();           
         await APICtrl.getSongById(token, id);
     }
