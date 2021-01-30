@@ -30,7 +30,6 @@ const APIController = (function() {
         });
 
         const data = await result.json();
-        //console.log(data);
 		
 		$(".songDetails").empty();
         $(".selector").empty();
@@ -39,19 +38,29 @@ const APIController = (function() {
         for (var i = 0; i < 10; i++) {
         	var preview = '';
 	        if(data.tracks.items[i].preview_url != null) {
-	        	preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.tracks.items[i].preview_url +"' type ='audio/mpeg'></audio>"
+	        	preview = "<audio controls class='previewPlayer_selector preview-" + i + "' controlsList='nodownload'><source src='" + data.tracks.items[i].preview_url +"' type ='audio/mpeg'></audio>"
 	        } else {
 	        	preview = '';
 			}
+
+			var like = "<i onClick='like(this)' class='far fa-heart heart_selector'></i>";
 			
 			var trackName = data.tracks.items[i].name;
 			if(trackName.length > 70) {
 				trackName = trackName.substr(0,70) + "...";
 			} 
 
+			var like = '';
+
+			if(!idExist(data.tracks.items[i].id)) {
+				like = "<i onClick='like(this)' class='far fa-heart heart_selector'></i>";
+			} else {
+				like = "<i onClick='like(this)' class='fas fa-heart heart_selector liked'></i>";
+			}
+
 			$(".selector").append("<div onClick='clearResults(event, this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name + 
-				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + like + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class='hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>");
 		}
 
         return data.tracks.items;
@@ -59,13 +68,11 @@ const APIController = (function() {
 
     const _getSongById = async(token, id) => {
 
-    	console.log(id);
+    	displayLoading();
 
 		$(".selector").empty();
     	$(".songDetails").empty();
     	$(".recommended").empty();
-
-    	//https://api.spotify.com/v1/tracks/7mazffu6nlIv0rtRyPDMTD
 
     	const resultSong = await fetch('https://api.spotify.com/v1/tracks/' + id, {
             method: 'GET',
@@ -79,8 +86,6 @@ const APIController = (function() {
 
         const dataSong = await resultSong.json();
         const dataAnalysis = await resultAnalysis.json();
-        console.log(dataSong);
-        //console.log(dataAnalysis);
 
         const duration = await millisToMinutesAndSecond(dataAnalysis.duration_ms);
 		const keys = await getMusicKey(dataAnalysis.key, dataAnalysis.mode);
@@ -118,6 +123,8 @@ const APIController = (function() {
 		+ "<p class='hidden songId'>" + id + "</p>"
 		);
 
+		$(".recommended").append("<h5>Similar songs</h5>");
+
 		var loadSimilar = await _getSimilar(await _getToken(), id);
 
 
@@ -130,11 +137,15 @@ const APIController = (function() {
 	    	}
 		}
 
+		hideLoading();
+
         return dataSong;
 
 	}
 
 	const _getFavorites = async (token) => {
+
+		displayLoading();
 
 		$(".songDetails").empty();
         $(".selector").empty();
@@ -144,7 +155,9 @@ const APIController = (function() {
 		var favorites = items;
 		var countFavorites = favorites.length;
 
-		if (items !== undefined || items.length != 0) {
+		if (items === undefined || items.length == 0) {
+			$(".selector").append("<h2>You don't have any favorite tracks yet</h2>");
+		} else {
 			$(".selector").append("<h2>My Favorites</h2>");
 			for(var i = 0; i < items.length; i++) {
 	    		const result = await fetch('https://api.spotify.com/v1/tracks/' + items[i], {
@@ -167,25 +180,33 @@ const APIController = (function() {
 					trackName = trackName.substr(0,70) + "...";
 				} 
 
+				var like = '';
+
+				if(!idExist(data.id)) {
+					like = "<i onClick='like(this); refreshFavorites();' class='far fa-heart heart_selector'></i>";
+				} else {
+					like = "<i onClick='like(this); refreshFavorites();' class='fas fa-heart heart_selector liked'></i>";
+				}
+
+
 		        $(".selector").append("<div onClick='clearResults(event, this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + data.artists[0].name + 
-				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + like + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class='hidden hidden-" + i +"'>" + data.id + "</p></div><br>");
 	        }
+
+	        if(countFavorites > 5) {
+	        	favorites = await getRandomFromArray(favorites, 5);
+	        }
+
+	        $(".recommended").append("<h5>Songs you might like</h5>");
+
+			var loadSimilar = await _getSimilar(await _getToken(), favorites, true);
 		}
 
-        if(countFavorites > 5) {
-        	favorites = await getRandom(favorites, 5);
-        }
-
-        console.log(favorites);
-
-		var loadSimilar = await _getSimilar(await _getToken(), favorites);
+		hideLoading();
     }
 
-    _getSimilar = async (token, seed) => {
-
-    	//console.log(token);
-    	//console.log(seed);
+    _getSimilar = async (token, seed, isInFavorites) => {
 
     	const resultRecommended = await fetch('https://api.spotify.com/v1/recommendations?limit=10&seed_tracks=' + seed, {
             method: 'GET',
@@ -195,10 +216,6 @@ const APIController = (function() {
         const dataRecommended = await resultRecommended.json();
 
 		var countFavorites = items.length;
-		
-		console.log(dataRecommended);
-
-        $(".recommended").append("<hr><h5>Songs you might like</h5>");
 
         for (var i = 0; i < 10; i++) {
         	var index = i + countFavorites;
@@ -214,13 +231,95 @@ const APIController = (function() {
 				trackName = trackName.substr(0,70) + "...";
 			} 
 
+			var like = '';
+			if(!idExist(dataRecommended.tracks[i].id)) {
+				if(isInFavorites) {
+					like = "<i onClick='like(this); refreshFavorites();' class='far fa-heart heart_selector'></i>";
+				} else {
+					like = "<i onClick='like(this)' class='far fa-heart heart_selector'></i>";
+				}
+			} else {
+				if(isInFavorites) {
+					like = "<i onClick='like(this); refreshFavorites();' class='fas fa-heart heart_selector liked'></i>";
+				} else {
+					like = "<i onClick='like(this)' class='fas fa-heart heart_selector liked'></i>";
+				}
+			}
+
 			$(".recommended").append("<div onClick='clearResults(event, this)' class='card item item-" + index + "'><img class='albumArt' src='" + dataRecommended.tracks[i].album.images[0].url + "'>" +
 				                  "<div class='nameInfo'><p class='artist'>" + dataRecommended.tracks[i].artists[0].name + 
-				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class=' hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
+				                  "</p><p class='song'>" + trackName + "</p></div>" + preview + like + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class='hidden hidden-" + index +"'>" + dataRecommended.tracks[i].id + "</p></div><br>");
 		}
     }
 
-    const getRandom = async(arr, n) => {
+    _getRandom = async () => {
+
+    	loadItems();
+
+    	var favorites = items;
+		var countFavorites = favorites.length;
+
+		if(countFavorites > 5) {
+        	favorites = await getRandomFromArray(favorites, 5);
+        }
+
+    	if (items === undefined || items.length == 0) {
+    		_getRandomSearch(await _getToken());
+
+		} else {
+
+			$(".recommended").append("<h5>Recommended for you</h5>");
+
+			_getSimilar(await _getToken(), favorites);
+		}
+    }
+
+    const _getRandomSearch = async(token) => {
+		const characters = 'abcdefghijklmnopqrstuvwxyz';
+		const randomOffset = Math.floor(Math.random() * 100);
+
+		const randomCharacter = characters.charAt(Math.floor(Math.random() * characters.length));
+		let randomSearch = '';
+
+		randomSearch = randomCharacter;
+
+		const resultRandom = await fetch('https://api.spotify.com/v1/search?query=' + randomSearch +  '&type=track&offset=' + randomOffset + '&limit=10', {
+			method: 'GET',
+			headers: { 'Authorization' : 'Bearer ' + token}
+		});
+
+		const data = await resultRandom.json();
+
+		for (var i = 0; i < 10; i++) {
+			var preview = '';
+
+			if(data.tracks.items[i].preview_url != null) {
+				preview = "<audio controls class='previewPlayer_selector' controlsList='nodownload'><source src='" + data.tracks.items[i].preview_url +"' type ='audio/mpeg'></audio>"
+			} else {
+				preview = '';
+			}
+
+			var trackName = data.tracks.items[i].name;
+			if(trackName.length > 70) {
+				trackName = trackName.substr(0,70) + "...";
+			} 
+
+			var like = '';
+
+			if(!idExist(data.tracks.items[i].id)) {
+				like = "<i onClick='like(this)' class='far fa-heart heart_selector'></i>";
+			} else {
+				like = "<i onClick='like(this)' class='fas fa-heart heart_selector liked'></i>";
+			}
+
+			$(".selector").append("<div onClick='clearResults(event, this)' class='card item item-" + i + "'><img class='albumArt' src='" + data.tracks.items[i].album.images[0].url + "'>" 
+				+ "<div class='nameInfo'><p class='artist'>" + data.tracks.items[i].artists[0].name
+				+ "</p><p class='song'>" + trackName + "</p></div>" + preview + like + "<i class='fas fa-arrow-right arrow-continue icon'></i><p class='hidden hidden-" + i +"'>" + data.tracks.items[i].id + "</p></div><br>"
+			);
+		}
+	}
+
+    const getRandomFromArray = async(arr, n) => {
 	    var result = new Array(n),
 	        len = arr.length,
 	        taken = new Array(len);
@@ -314,6 +413,9 @@ const APIController = (function() {
         },
         getSimilar(token, seed) {
         	return _getSimilar(token, seed);
+        },
+        getRandom() {
+        	return _getRandom();
         }
 	}
 })();
@@ -340,6 +442,9 @@ const APPController = (function(APICtrl) {
         const token = await APICtrl.getToken();           
         await APICtrl.getSimilar(token, seed);
     }
+    const loadRandom = async () => {
+    	await APICtrl.getRandom();
+    }
 
 	return {
         init() {
@@ -355,37 +460,11 @@ const APPController = (function(APICtrl) {
         },
         showSimilar() {
         	loadSimilar(seed);
+        },
+        populateHomepage() {
+        	loadRandom();
         }
 
     }
 
 })(APIController);
-
-//APPController.init();
-
-/*
-	(0,1):'8B',
-	(1,1):'3B',
-	(2,1):'10B',
-	(3,1):'5B',
-	(4,1):'12B',
-	(5,1):'7B',
-	(6,1):'2B',
-	(7,1):'9B',
-	(8,1):'4B',
-	(9,1):'11B',
-	(10,1):'6B',
-	(11,1):'1B',
-	(0,0):'5A',
-	(1,0):'12A',
-	(2,0):'7A',
-	(3,0):'2A',
-	(4,0):'9A',
-	(5,0):'4A',
-	(6,0):'11A',
-	(7,0):'6A',
-	(8,0):'1A',
-	(9,0):'8A',
-	(10,0):'3A',
-	(11,0):'10A',
-*/

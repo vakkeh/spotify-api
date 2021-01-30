@@ -5,6 +5,28 @@
 	-webkit-appearance: none;
 }
 
+#loading {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  position: fixed;
+  display: block;
+  background-color: #fff;
+  z-index: 99;
+  text-align: center;
+}
+
+#loading-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
   height: 0.5em;
@@ -123,6 +145,17 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	float: right;
 }
 
+.heart_selector {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+	font-size: 1vw;
+	margin-right: 4%;
+	float: right;
+}
+
 .heart {
 	float: right;
 	font-size: 2vw;
@@ -133,7 +166,7 @@ input[type="search"].dark::-webkit-search-cancel-button {
 	cursor: pointer;
 }
 
-.heart.animate {
+.heart.animate, .heart_selector.animate {
 	transition: all ease-in-out;
 	animation: like 0.15s;
 }
@@ -222,7 +255,7 @@ input[type="search"].dark::-webkit-search-cancel-button {
 .previewPlayer_selector {
 	position: absolute;
 	right: 0;
-	margin-right: 5%;
+	margin-right: 6%;
 	width: 30%;
 	top: 50%;
 	-ms-transform: translateY(-50%);

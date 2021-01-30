@@ -1,0 +1,1 @@
+Stránka je také hostovaná na stránce https://vakkeh.github.io/spotify-api/

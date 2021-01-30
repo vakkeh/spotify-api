@@ -6,6 +6,7 @@
 		src="https://code.jquery.com/jquery-3.5.1.min.js"
 		integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
 		crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.1/howler.min.js" integrity="sha512-L6Z/YtIPQ7eU3BProP34WGU5yIRk7tNHk7vaC2dB1Vy1atz6wl9mCkTPPZ2Rn1qPr+vY2mZ9odZLdGYuaBk7dQ==" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="style.css">
 		<link rel="preconnect" href="https://fonts.gstatic.com">
 		<script src="https://kit.fontawesome.com/c8a0c84ff9.js" crossorigin="anonymous"></script>
@@ -18,17 +19,25 @@
 
 			$( document ).ready(function() {
 
+				APPController.populateHomepage();
+
 				favorites = window.localStorage;
 
 	    		var input = document.getElementById("song");
 				input.addEventListener("keyup", function(event) {
+					if($(input).val() == "") {
+						APPController.populateHomepage();
+					}
 					event.preventDefault();
-					//document.getElementById("submit").click();
 					APPController.init();
 				});
 			});
 
 			function clearResults(event, element) {
+				if (event.target.classList[1] == 'heart_selector' || event.target.classList[0] == 'previewPlayer_selector') {
+				    event.stopPropagation();
+				    return;
+				  }
 				var myClasses = element.classList;
    				var itemNum = myClasses[2].split('-')[1];
    				var id = $(".hidden-" + itemNum).text();
@@ -44,10 +53,18 @@
 			}
 
 			function like(element) {
+
 				$(element).toggleClass('animate');
 				$(element).toggleClass('liked');
 				$(element).toggleClass("far fas");
-				var id =  $("p.songId").text();
+
+				var id = '';
+
+				if($("p.songId").text() == '') {
+					id = $(element).parent().find(".hidden").text();
+				} else {
+					id =  $("p.songId").text();
+				}
 
 				loadItems();
 
@@ -66,6 +83,8 @@
 						localStorage.setItem('id', JSON.stringify(items));
 			    	}
 				}
+
+				var parent = $(element).parent().parent();
 			}
 
 			function loadItems() {
@@ -88,10 +107,17 @@
 				return check;
 			}
 
+			function refreshFavorites() {
+				APPController.showFavorites();
+			}
+
 		</script>
 	</head>
 	<body>
 		<div class="container">
+			<div id="loading">
+			  <img id="loading-image" src="loading.gif" alt="Loading..." />
+			</div>
 			<div class="topBar">
 				<a href="./index.html"><h1>MusicSeek</h1></a>
 				<p class="navItem" onClick="showFavorites()">My Favorites</p>
@@ -103,6 +129,29 @@
 			<div class="songDetails">
 			</div>
 			<div class="recommended">
+			<script type="text/javascript">
+				document.addEventListener('play', function(e){
+				    var audios = document.getElementsByTagName('audio');
+				    for(var i = 0, len = audios.length; i < len;i++){
+				        if(audios[i] != e.target){
+				            audios[i].pause();
+				        }
+				    }
+				}, true);
+
+				function displayLoading() {
+					$('#loading').show();
+				}
+
+				function hideLoading() {
+					$('#loading').fadeOut("slow");
+				}
+
+				$(window).on('load', function(){
+					$('#loading').fadeOut("slow");
+				});
+
+			</script>
 		</div>
 	</body>
 </html>
